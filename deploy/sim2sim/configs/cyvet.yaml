@@ -1,0 +1,93 @@
+# SPDX-License-Identifier: Apache-2.0
+robot:
+  name: cyvet
+  xml_path: ../assets/cyvet/xml/scene_terrain.xml
+  robot_xml_path: ../assets/cyvet/xml/cyvet.xml
+  base_body: case
+  initial_base_pos: [0.0, 0.0, 0.42]
+
+policy:
+  checkpoint: ""
+  backend: rsl_rl
+  num_actor_obs: 45
+  num_critic_obs: 60
+  num_actions: 12
+  actor_hidden_dims: [512, 256, 128]
+  critic_hidden_dims: [512, 256, 128]
+  activation: elu
+  init_noise_std: 1.0
+  clip_observations: 100.0
+  clip_actions: 100.0
+
+commands:
+  lin_vel_x: 0.5
+  lin_vel_y: 0.0
+  ang_vel_z: 0.0
+
+sim:
+  dt: 0.004
+  decimation: 5
+  duration: 1000.0
+
+control:
+  action_scale: 0.25
+  torque_limit: 48.0
+  delay_steps: 0
+  actuator_model:
+    x1: 15.0
+    x2: 21.0
+    y1: 48.0
+    y2: 48.0
+    activation_velocity: 0.01
+    armature:
+      abad: 0.0174989
+      hip: 0.0158000
+      knee: 0.0173718
+    friction_static:
+      abad: 0.2292320
+      hip: 0.2127050
+      knee: 0.2729870
+    friction_dynamic:
+      abad: 0.0233946
+      hip: 0.0038715
+      knee: 0.0136532
+  default_joint_pos:
+    abad: 0.0
+    hip: 0.8
+    knee: -1.58
+  kp:
+    abad: 35.0
+    hip: 35.0
+    knee: 35.0
+  kd:
+    abad: 1.0
+    hip: 1.0
+    knee: 1.0
+
+joint_mapping:
+  policy_joint_names:
+    - FL_ABAD_JOINT
+    - FR_ABAD_JOINT
+    - RL_ABAD_JOINT
+    - RR_ABAD_JOINT
+    - FL_HIP_JOINT
+    - FR_HIP_JOINT
+    - RL_HIP_JOINT
+    - RR_HIP_JOINT
+    - FL_KNEE_JOINT
+    - FR_KNEE_JOINT
+    - RL_KNEE_JOINT
+    - RR_KNEE_JOINT
+  mujoco_joint_names_leg_major:
+    - FL_hip_joint
+    - FL_thigh_joint
+    - FL_calf_joint
+    - FR_hip_joint
+    - FR_thigh_joint
+    - FR_calf_joint
+    - RL_hip_joint
+    - RL_thigh_joint
+    - RL_calf_joint
+    - RR_hip_joint
+    - RR_thigh_joint
+    - RR_calf_joint

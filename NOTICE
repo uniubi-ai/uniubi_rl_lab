@@ -1,0 +1,13 @@
+Uniubi RL Lab
+Copyright 2026 Uniubi AI
+
+This repository is licensed under the Apache License, Version 2.0, except where a file,
+directory, or included artifact states a different license.
+
+Original Uniubi source code in this repository is made available under Apache-2.0.
+Files derived from or adapted from Isaac Lab retain their BSD-3-Clause notices.
+See THIRD_PARTY_NOTICES.md for third-party and derived-code notices.
+
+Robot model assets, datasets, trained weights, generated artifacts, and third-party
+components may be subject to separate license terms. Those terms must be preserved
+and are not overridden by the repository-level Apache-2.0 license.
