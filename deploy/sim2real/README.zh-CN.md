@@ -79,7 +79,7 @@ Sim2Sim 通过只能说明模型和接口契约基本一致，不等于实机控
 两套示例都直接输入 ONNX，并在**每次进程启动时**重新构建 TensorRT engine，不读取
 或写入 `.engine` 缓存。当前示例使用 FP32；C++ 示例还显式关闭 TF32。C++ 的 Orin
 原生编译和 Ubuntu 22.04 x86_64 交叉编译说明见
-[Uniubi SDK 构建指南](https://github.com/uniubi-ai/uniubi-docs/blob/main/docs/BUILD.md#31-交叉编译-tensorrt-示例的额外边界)。
+[Uniubi SDK 构建指南](https://github.com/uniubi-ai/uniubi-docs/blob/main/docs/BUILD.zh-CN.md#31-交叉编译-tensorrt-示例的额外边界)。
 
 ### 4.1 板端环境
 
