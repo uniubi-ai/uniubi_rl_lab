@@ -85,7 +85,7 @@ Both examples take ONNX as input and rebuild a TensorRT engine at **every
 process startup**; they do not read or write an `.engine` cache. The current
 examples use FP32, and the C++ example explicitly disables TF32. Native Orin
 and Ubuntu 22.04 x86_64 cross-build instructions are in the
-[Uniubi SDK build guide](https://github.com/uniubi-ai/uniubi-docs/blob/main/docs/BUILD.md#31-交叉编译-tensorrt-示例的额外边界).
+[Uniubi SDK build guide](https://github.com/uniubi-ai/uniubi-docs/blob/main/docs/BUILD.md#31-additional-requirements-for-the-tensorrt-example).
 
 ### 4.1 Board environment
 
