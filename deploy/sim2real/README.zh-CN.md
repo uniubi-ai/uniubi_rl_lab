@@ -185,7 +185,17 @@ SDK leg-major -> 模型 joint-major -> SDK leg-major
 
 ## 6. 实机验证与退出
 
-首次验证必须把机器狗可靠放在安全吊架上，保持四脚腾空、急停可触达并有人值守：
+首次验证先把机器狗可靠放在安全吊架上，保持四脚腾空、急停可触达并有人值守。吊架上
+只验证站立和趴下，不验证行走：
+
+```text
+lowlevel> stand
+lowlevel> lay
+lowlevel> quit
+```
+
+确认 `stand` / `lay` 动作和关节方向正常后，将机器狗从吊架移到空旷、平整、无障碍的
+地面，继续保持急停可触达并有人值守，再验证行走：
 
 ```text
 lowlevel> stand
@@ -194,6 +204,8 @@ lowlevel> stop
 lowlevel> lay
 lowlevel> quit
 ```
+
+不要在四脚腾空时执行 `walk`。
 
 TensorRT 策略示例退出时只在 prepared 状态调用 `setMotionEnable(false)`，随后断开连接
 并关闭 SDK；不会调用 `emergencyStop()` 或 `restoreMotionControlMode()`。

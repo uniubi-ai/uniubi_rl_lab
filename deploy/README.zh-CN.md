@@ -10,7 +10,8 @@
 2. 从明确的 checkpoint 导出 ONNX，并记录 task、checkpoint 路径和模型契约。
 3. 用本地 MuJoCo sim2sim 验证同一个 checkpoint。
 4. 可选：通过 SDK sim2sim bridge 验证 Low-level SDK 链路和关节重排。
-5. 在板端先执行 TensorRT `--validate-only`，再进入吊架上的 sim2real 验证。
+5. 在板端先执行 TensorRT `--validate-only`；吊架上只验证 `stand` 和 `lay`，确认正常
+   后再放到空旷平整地面验证 `walk`。
 
 每一步都必须使用同一份模型契约；不能只替换 ONNX 文件而沿用未经核对的 observation、
 归一化、关节顺序、action scale 或控制周期。

@@ -200,7 +200,18 @@ fails:
 ## 6. Real-robot validation and shutdown
 
 For the first test, secure the robot on a safety rig with all feet clear, keep
-the emergency stop reachable, and have an operator present:
+the emergency stop reachable, and have an operator present. Validate only
+standing and laying on the rig; do not validate walking while suspended:
+
+```text
+lowlevel> stand
+lowlevel> lay
+lowlevel> quit
+```
+
+After `stand` and `lay` confirm the expected motion and joint directions, move
+the robot off the rig onto clear, level, obstacle-free ground. Keep the
+emergency stop reachable and an operator present, then validate walking:
 
 ```text
 lowlevel> stand

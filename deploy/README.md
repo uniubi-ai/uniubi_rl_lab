@@ -12,8 +12,8 @@ Deployment-related documentation is grouped here.
 3. Validate the same checkpoint with local MuJoCo sim2sim.
 4. Optionally validate the Low-level SDK transport and joint reorder through
    the SDK sim2sim bridge.
-5. Run TensorRT `--validate-only` on the board before sim2real testing on a
-   safety rig.
+5. Run TensorRT `--validate-only` on the board. Validate only `stand` and `lay`
+   on a safety rig, then move to clear, level ground to validate `walk`.
 
 Every stage must use the same model contract. Do not replace only the ONNX file
 while reusing an unverified observation, normalization, joint order, action
