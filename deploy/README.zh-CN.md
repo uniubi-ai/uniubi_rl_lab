@@ -4,13 +4,16 @@
 
 部署相关文档统一放在这里。
 
-推荐流程：
+## 推荐流程
 
 1. 在 Isaac Lab 中训练策略。
-2. 导出 ONNX。
-3. 先用本地 MuJoCo sim2sim 验证。
-4. 可选：通过 SDK sim2sim bridge 验证低级 SDK 链路。
-5. 准备 sim2real 部署。
+2. 从明确的 checkpoint 导出 ONNX，并记录 task、checkpoint 路径和模型契约。
+3. 用本地 MuJoCo sim2sim 验证同一个 checkpoint。
+4. 可选：通过 SDK sim2sim bridge 验证 Low-level SDK 链路和关节重排。
+5. 在板端先执行 TensorRT `--validate-only`，再进入吊架上的 sim2real 验证。
+
+每一步都必须使用同一份模型契约；不能只替换 ONNX 文件而沿用未经核对的 observation、
+归一化、关节顺序、action scale 或控制周期。
 
 ## 导出 ONNX
 
@@ -48,18 +51,31 @@ logs/rsl_rl/cyvet_velocity/<run>/exported/policy.pt
 
 如果需要编译或安装 SDK sim2sim client 使用的 Python SDK，请参考：
 
-[uniubi-ai/uniubi_robot_sdk_py develop](https://github.com/uniubi-ai/uniubi_robot_sdk_py/tree/develop)
+[uniubi-ai/uniubi_robot_sdk_py main](https://github.com/uniubi-ai/uniubi_robot_sdk_py/tree/main)
 
 ## Sim2Real
 
-Sim2Real 说明放在：
+完整板端部署说明：
 
 [sim2real/README.zh-CN.md](sim2real/README.zh-CN.md)
 
-板端部署建议使用 TensorRT engine 进行策略推理。ONNXRuntime 主要用于 x86 仿真验证和接口联调。
+当前公开 Cyvet 策略是 float32 `[1,45] -> [1,12]`。模型使用 joint-major 关节顺序，
+SDK/机器人 `MotorLayout` 使用 leg-major 顺序；板端程序必须通过 `getMotorLayout()`
+校验实际布局，并显式完成双向重排，不能依赖硬编码 SDK 数组下标。
 
-SDK sim2real 中运行 Python 控制进程时，建议绑定到独立 CPU 核：
+板端推荐直接输入 ONNX，由 C++ 或 Python SDK TensorRT 示例在每次启动时重新构建
+FP32 engine。板端不需要 PyTorch 或 ONNX Runtime。参考实现：
+
+- [C++ Low-level TensorRT 示例](https://github.com/uniubi-ai/uniubi_robot_sdk/blob/main/examples/example_lowlevel_tensorrt.cpp)
+- [Python Low-level TensorRT 示例](https://github.com/uniubi-ai/uniubi_robot_sdk_py/blob/main/examples/example_lowlevel_tensorrt.py)
+
+先做不连接机器人的模型验证：
 
 ```bash
-taskset -c 2 python <your_sdk_sim2real_script>.py ...
+taskset -c 2 ./example_lowlevel_tensorrt \
+  --onnx /path/to/policy.onnx --validate-only
 ```
+
+实机控制进程建议继续通过 `taskset -c 2` 绑定 CPU 2，以减少调度抖动。只有模型 shape、
+observation、模型关节顺序、MotorLayout 和 action contract 全部匹配后，才允许使能
+Low-level 控制。

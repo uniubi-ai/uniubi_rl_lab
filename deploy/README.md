@@ -4,13 +4,20 @@
 
 Deployment-related documentation is grouped here.
 
-Recommended workflow:
+## Recommended workflow
 
 1. Train a policy in Isaac Lab.
-2. Export the policy to ONNX.
-3. Validate with local MuJoCo sim2sim.
-4. Optionally validate through the SDK sim2sim bridge.
-5. Prepare sim2real deployment.
+2. Export ONNX from an identified checkpoint and record the task, checkpoint
+   path, and model contract.
+3. Validate the same checkpoint with local MuJoCo sim2sim.
+4. Optionally validate the Low-level SDK transport and joint reorder through
+   the SDK sim2sim bridge.
+5. Run TensorRT `--validate-only` on the board before sim2real testing on a
+   safety rig.
+
+Every stage must use the same model contract. Do not replace only the ONNX file
+while reusing an unverified observation, normalization, joint order, action
+scale, or control rate.
 
 ## Export ONNX
 
@@ -48,18 +55,35 @@ That workflow runs a MuJoCo bridge that exchanges low-level control and observed
 
 If you need to build or install the Python SDK used by the SDK sim2sim client, refer to:
 
-[uniubi-ai/uniubi_robot_sdk_py develop](https://github.com/uniubi-ai/uniubi_robot_sdk_py/tree/develop)
+[uniubi-ai/uniubi_robot_sdk_py main](https://github.com/uniubi-ai/uniubi_robot_sdk_py/tree/main)
 
 ## Sim2Real
 
-Sim2Real notes are kept under:
+Full on-board deployment guide:
 
 [sim2real/README.md](sim2real/README.md)
 
-For on-board deployment, use a TensorRT engine for policy inference. ONNXRuntime is intended for x86 simulation and integration checks.
+The current public Cyvet policy is float32 `[1,45] -> [1,12]`. The model uses
+joint-major order while the robot SDK `MotorLayout` uses leg-major order. The
+deployment process must validate the actual layout with `getMotorLayout()` and
+perform both reorders explicitly; it must not rely on hard-coded SDK array
+indices.
 
-For SDK sim2real, binding the Python control process to a dedicated CPU core is recommended:
+On the board, pass ONNX directly to a C++ or Python SDK TensorRT example. Both
+rebuild an FP32 engine at every process startup. PyTorch and ONNX Runtime are not
+required on the robot. Reference implementations:
+
+- [C++ Low-level TensorRT example](https://github.com/uniubi-ai/uniubi_robot_sdk/blob/main/examples/example_lowlevel_tensorrt.cpp)
+- [Python Low-level TensorRT example](https://github.com/uniubi-ai/uniubi_robot_sdk_py/blob/main/examples/example_lowlevel_tensorrt.py)
+
+Run model-only validation first:
 
 ```bash
-taskset -c 2 python <your_sdk_sim2real_script>.py ...
+taskset -c 2 ./example_lowlevel_tensorrt \
+  --onnx /path/to/policy.onnx --validate-only
 ```
+
+Continue to bind the real-robot control process to CPU 2 with `taskset -c 2` to
+reduce scheduling jitter. Low-level control may be enabled only after the model
+shape, observation, model joint order, MotorLayout, and action contract all
+match.
